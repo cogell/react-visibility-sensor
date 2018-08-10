@@ -1,7 +1,6 @@
 'use strict';
 
 var React = require('react');
-var ReactDOM = require('react-dom');
 var PropTypes = require('prop-types');
 var createReactClass = require('create-react-class');
 var isVisibleWithOffset = require('./lib/is-visible-with-offset')
@@ -40,6 +39,7 @@ function debounce(func, wait) {
 
 module.exports = createReactClass({
   displayName: 'VisibilitySensor',
+  userlandRef: null,
 
   propTypes: {
     onChange: PropTypes.func,
@@ -106,7 +106,6 @@ module.exports = createReactClass({
   },
 
   componentDidMount: function () {
-    this.node = ReactDOM.findDOMNode(this);
     if (this.props.active) {
       this.startWatching();
     }
@@ -221,7 +220,7 @@ module.exports = createReactClass({
    * Check if the element is within the visible viewport
    */
   check: function () {
-    var el = this.node;
+    var el = this.userlandRef;
     var rect;
     var containmentRect;
     // if the component has rendered to null, dont update visibility
@@ -312,11 +311,16 @@ module.exports = createReactClass({
     return state;
   },
 
+  setRef: function (component) {
+    this.userlandRef = component;
+  },
+
   render: function () {
     if (this.props.children instanceof Function) {
       return this.props.children({
         isVisible: this.state.isVisible,
         visibilityRect: this.state.visibilityRect,
+        setRef: this.setRef,
       });
     }
     return React.Children.only(this.props.children);
